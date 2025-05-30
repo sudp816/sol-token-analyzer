@@ -1,11 +1,9 @@
-// server.js
-import express from 'express';
-import fetch from 'node-fetch';
-import cors from 'cors';
-import { Connection, PublicKey } from '@solana/web3.js';
+// api/index.js - Vercel Serverless API
+const express = require('express');
+const cors = require('cors');
+const { Connection, PublicKey } = require('@solana/web3.js');
 
 const app = express();
-const port = 3001;
 
 app.use(cors());
 
@@ -208,12 +206,12 @@ app.get('/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    environment: 'Vercel Serverless'
   });
 });
 
 // API端点
-app.get('/api/sol-token-info', async (req, res) => {
+app.get('/sol-token-info', async (req, res) => {
   try {
     const { address, range = 1, unit = 'hours' } = req.query;
     
@@ -266,7 +264,8 @@ app.get('/api/sol-token-info', async (req, res) => {
       userChart,
       recommendation,
       recommendationType,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      note: "云端升级版本 v2.0 - Vercel部署"
     });
     
   } catch (err) {
@@ -278,8 +277,5 @@ app.get('/api/sol-token-info', async (req, res) => {
   }
 });
 
-// 静态文件服务 - 放在API路由之后
-app.use(express.static('.'));
-
 // Vercel serverless function export
-export default app;
+module.exports = app;
