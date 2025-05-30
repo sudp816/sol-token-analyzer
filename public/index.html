@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SOL Token Analyzer - 专业代币分析工具</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #667eea;
+      --secondary-color: #764ba2;
+      --success-color: #10b981;
+      --danger-color: #ef4444;
+      --warning-color: #f59e0b;
+      --info-color: #3b82f6;
+      --dark-color: #1f2937;
+      --light-color: #f8fafc;
+      --border-color: #e2e8f0;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: var(--dark-color);
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    /* Header Section */
+    .header {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 40px;
+      margin-bottom: 30px;
+      box-shadow: var(--shadow-xl);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .header h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .header .subtitle {
+      text-align: center;
+      color: #64748b;
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+      font-weight: 400;
+    }
+    
+    /* Input Section */
+    .input-section {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+    }
+    
+    .input-group {
+      flex: 1;
+      min-width: 300px;
+      position: relative;
+    }
+    
+    .input-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: var(--dark-color);
+      font-size: 0.9rem;
+    }
+    
+    .input-group input {
+      width: 100%;
+      padding: 16px 20px;
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background: white;
+      font-family: 'Monaco', 'Menlo', monospace;
+    }
+    
+    .input-group input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+      transform: translateY(-1px);
+    }
+    
+    .btn {
+      padding: 16px 32px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      box-shadow: var(--shadow-md);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+    
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+    
+    /* Time Controls */
+    .time-controls {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .time-controls h3 {
+      margin-bottom: 20px;
+      color: var(--dark-color);
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .time-range-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 12px;
+    }
+    
+    .time-btn {
+      padding: 12px 20px;
+      border: 2px solid var(--border-color);
+      border-radius: 10px;
+      background: white;
+      color: var(--dark-color);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .time-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      transition: left 0.5s;
+    }
+    
+    .time-btn:hover::before {
+      left: 100%;
+    }
+    
+    .time-btn:hover {
+      border-color: var(--primary-color);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .time-btn.active {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      border-color: var(--primary-color);
+      color: white;
+      box-shadow: var(--shadow-md);
+    }
+    
+    /* Status Messages */
+    .status-message {
+      margin: 20px 0;
+      padding: 16px 20px;
+      border-radius: 12px;
+      text-align: center;
+      font-weight: 500;
+      display: none;
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .loading {
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .loading .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top: 2px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .error {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+      border-left: 4px solid #b91c1c;
+    }
+    
+    .recommendation {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 16px;
+      padding: 25px;
+      margin-bottom: 30px;
+      box-shadow: var(--shadow-lg);
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .recommendation.buy {
+      border-left: 6px solid var(--success-color);
+    }
+    
+    .recommendation.sell {
+      border-left: 6px solid var(--danger-color);
+    }
+    
+    .recommendation.neutral {
+      border-left: 6px solid var(--warning-color);
+    }
+    
+    .recommendation .icon {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+    
+    .recommendation .title {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    
+    .recommendation .details {
+      color: #64748b;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    
+    /* Charts Container */
+    .charts-container {
+      display: grid;
+      gap: 30px;
+      grid-template-columns: 1fr;
+    }
+    
+    .chart-container {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transition: transform 0.3s ease;
+    }
+    
+    .chart-container:hover {
+      transform: translateY(-5px);
+    }
+    
+    .chart-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    
+    .chart-title {
+      font-size: 1.4rem;
+      color: var(--dark-color);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .chart-info {
+      background: #f1f5f9;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: #64748b;
+      font-weight: 500;
+    }
+    
+    .chart-wrapper {
+      position: relative;
+      height: 400px;
+      margin: 20px 0;
+    }
+    
+    canvas {
+      max-width: 100%;
+      height: auto;
+    }
+    
+    /* Token Info Section */
+    .token-info {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 16px;
+      padding: 25px;
+      margin-bottom: 30px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: none;
+    }
+    
+    .token-info.show {
+      display: block;
+      animation: slideIn 0.3s ease;
+    }
+    
+    .token-info h3 {
+      margin-bottom: 15px;
+      color: var(--dark-color);
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+    
+    .token-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    
+    .token-detail {
+      background: #f8fafc;
+      padding: 15px;
+      border-radius: 10px;
+      border-left: 4px solid var(--primary-color);
+    }
+    
+    .token-detail .label {
+      font-size: 0.85rem;
+      color: #64748b;
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+    
+    .token-detail .value {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--dark-color);
+    }
+    
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 50px;
+      padding: 30px;
+      color: rgba(255, 255, 255, 0.8);
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+    }
+    
+    .footer a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    .footer a:hover {
+      text-decoration: underline;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px;
+      }
+      
+      .header {
+        padding: 25px;
+      }
+      
+      .header h1 {
+        font-size: 2.2rem;
+      }
+      
+      .input-section {
+        flex-direction: column;
+      }
+      
+      .input-group {
+        min-width: auto;
+        width: 100%;
+      }
+      
+      .time-range-buttons {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .chart-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .chart-wrapper {
+        height: 300px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .header h1 {
+        font-size: 1.8rem;
+      }
+      
+      .time-range-buttons {
+        grid-template-columns: 1fr;
+      }
+      
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header Section -->
+    <div class="header">
+      <h1><i class="fas fa-chart-line"></i> SOL Token Analyzer</h1>
+      <p class="subtitle">专业的Solana代币分析工具 - 实时数据驱动的投资决策助手</p>
+      
+      <div class="input-section">
+        <div class="input-group">
+          <label for="addressInput">
+            <i class="fas fa-coins"></i> 代币合约地址
+          </label>
+          <input 
+            type="text" 
+            id="addressInput" 
+            placeholder="输入Solana代币合约地址，例如：So11111111111111111111111111111111111111112"
+          />
+        </div>
+        <button class="btn btn-primary" onclick="fetchTokenData()" id="analyzeBtn">
+          <i class="fas fa-search"></i>
+          开始分析
+        </button>
+      </div>
+    </div>
+
+    <!-- Time Controls -->
+    <div class="time-controls">
+      <h3>
+        <i class="fas fa-clock"></i>
+        选择分析时间区间
+      </h3>
+      <div class="time-range-buttons">
+        <button class="time-btn" onclick="changeTimeRange(10, 'seconds')" data-range="10s">
+          <i class="fas fa-bolt"></i> 10秒
+        </button>
+        <button class="time-btn" onclick="changeTimeRange(30, 'seconds')" data-range="30s">
+          <i class="fas fa-tachometer-alt"></i> 30秒
+        </button>
+        <button class="time-btn" onclick="changeTimeRange(1, 'minutes')" data-range="1m">
+          <i class="far fa-clock"></i> 1分钟
+        </button>
+        <button class="time-btn" onclick="changeTimeRange(5, 'minutes')" data-range="5m">
+          <i class="fas fa-clock"></i> 5分钟
+        </button>
+        <button class="time-btn" onclick="changeTimeRange(30, 'minutes')" data-range="30m">
+          <i class="fas fa-hourglass-half"></i> 30分钟
+        </button>
+        <button class="time-btn active" onclick="changeTimeRange(1, 'hours')" data-range="1h">
+          <i class="fas fa-hourglass"></i> 1小时
+        </button>
+        <button class="time-btn" onclick="changeTimeRange(3, 'hours')" data-range="3h">
+          <i class="fas fa-history"></i> 3小时
+        </button>
+        <button class="time-btn" onclick="changeTimeRange(5, 'hours')" data-range="5h">
+          <i class="fas fa-calendar-day"></i> 5小时
+        </button>
+      </div>
+    </div>
+
+    <!-- Status Messages -->
+    <div id="loading" class="status-message loading">
+      <div class="spinner"></div>
+      正在获取代币数据，请稍候...
+    </div>
+
+    <div id="error" class="status-message error"></div>
+
+    <!-- Token Info -->
+    <div id="tokenInfo" class="token-info">
+      <h3><i class="fas fa-info-circle"></i> 代币信息</h3>
+      <div class="token-details" id="tokenDetails">
+        <!-- 动态生成代币详情 -->
+      </div>
+    </div>
+
+    <!-- Recommendation -->
+    <div id="recommendation" class="recommendation" style="display: none;">
+      <div class="icon" id="recommendationIcon"></div>
+      <div class="title" id="recommendationTitle"></div>
+      <div class="details" id="recommendationDetails"></div>
+    </div>
+
+    <!-- Charts Container -->
+    <div class="charts-container">
+      <div class="chart-container">
+        <div class="chart-header">
+          <div class="chart-title">
+            <i class="fas fa-chart-line"></i>
+            价格走势图
+          </div>
+          <div class="chart-info" id="priceInfo">
+            实时价格变化趋势
+          </div>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="priceChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-header">
+          <div class="chart-title">
+            <i class="fas fa-exchange-alt"></i>
+            资金流向图
+          </div>
+          <div class="chart-info" id="volumeInfo">
+            买入/卖出资金流向分析
+          </div>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="volumeChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-header">
+          <div class="chart-title">
+            <i class="fas fa-users"></i>
+            交易用户图
+          </div>
+          <div class="chart-info" id="userInfo">
+            买家卖家数量变化趋势
+          </div>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="userChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>
+        <i class="fas fa-code"></i>
+        由 <strong>SOL Token Analyzer</strong> 提供技术支持 | 
+        数据来源：<a href="https://helius.xyz" target="_blank">Helius API</a> | 
+        <i class="fas fa-shield-alt"></i> 安全可靠
+      </p>
+      <p style="margin-top: 10px; font-size: 0.9rem; opacity: 0.8;">
+        <i class="fas fa-exclamation-triangle"></i>
+        免责声明：本工具仅供分析参考，投资有风险，决策需谨慎
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // 全局变量
+    let currentRange = { value: 1, unit: 'hours' };
+    let charts = {};
+    let isLoading = false;
+    
+    // 检测部署环境 - 适配Vercel等云端部署
+    const API_BASE_URL = window.location.hostname === 'localhost' 
+      ? 'http://localhost:3001' 
+      : ''; // 生产环境使用相对路径
+
+    // 工具函数
+    function showLoading(show) {
+      const loadingEl = document.getElementById('loading');
+      const analyzeBtn = document.getElementById('analyzeBtn');
+      
+      loadingEl.style.display = show ? 'block' : 'none';
+      analyzeBtn.disabled = show;
+      
+      if (show) {
+        analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 分析中...';
+      } else {
+        analyzeBtn.innerHTML = '<i class="fas fa-search"></i> 开始分析';
+      }
+      
+      isLoading = show;
+    }
+
+    function showError(message) {
+      const errorEl = document.getElementById('error');
+      errorEl.textContent = message;
+      errorEl.style.display = 'block';
+      setTimeout(() => {
+        errorEl.style.display = 'none';
+      }, 8000);
+    }
+
+    function showTokenInfo(data) {
+      const tokenInfoEl = document.getElementById('tokenInfo');
+      const tokenDetailsEl = document.getElementById('tokenDetails');
+      
+      // 生成代币信息显示
+      tokenDetailsEl.innerHTML = `
+        <div class="token-detail">
+          <div class="label">合约地址</div>
+          <div class="value" style="font-family: monospace; font-size: 0.9rem;">
+            ${data.address.substring(0, 8)}...${data.address.substring(data.address.length - 8)}
+          </div>
+        </div>
+        <div class="token-detail">
+          <div class="label">时间区间</div>
+          <div class="value">${data.timeRange}</div>
+        </div>
+        <div class="token-detail">
+          <div class="label">数据点数</div>
+          <div class="value">${data.dataPoints} 个</div>
+        </div>
+        <div class="token-detail">
+          <div class="label">最后更新</div>
+          <div class="value">${new Date().toLocaleTimeString('zh-CN')}</div>
+        </div>
+      `;
+      
+      tokenInfoEl.classList.add('show');
+    }
+
+    function showRecommendation(recommendation, type) {
+      const recEl = document.getElementById('recommendation');
+      const iconEl = document.getElementById('recommendationIcon');
+      const titleEl = document.getElementById('recommendationTitle');
+      const detailsEl = document.getElementById('recommendationDetails');
+      
+      // 解析推荐信息
+      const parts = recommendation.split('\n');
+      const mainText = parts[0] || recommendation;
+      const reason = parts[1] || '';
+      
+      // 设置图标和样式
+      recEl.className = `recommendation ${type}`;
+      
+      switch(type) {
+        case 'buy':
+          iconEl.innerHTML = '<i class="fas fa-arrow-trend-up"></i>';
+          break;
+        case 'sell':
+          iconEl.innerHTML = '<i class="fas fa-arrow-trend-down"></i>';
+          break;
+        default:
+          iconEl.innerHTML = '<i class="fas fa-pause"></i>';
+      }
+      
+      titleEl.textContent = mainText;
+      detailsEl.textContent = reason;
+      recEl.style.display = 'block';
+    }
+
+    function updateChartInfo(data) {
+      // 更新图表信息
+      const priceData = data.priceChart;
+      const volumeData = data.volumeChart;
+      const userData = data.userChart;
+      
+      if (priceData && priceData.length > 0) {
+        const latestPrice = priceData[priceData.length - 1].price;
+        const firstPrice = priceData[0].price;
+        const priceChange = ((latestPrice - firstPrice) / firstPrice * 100).toFixed(2);
+        
+        document.getElementById('priceInfo').innerHTML = 
+          `当前价格: ${latestPrice.toFixed(6)} SOL | 变化: ${priceChange > 0 ? '+' : ''}${priceChange}%`;
+      }
+      
+      if (volumeData && volumeData.length > 0) {
+        const totalVolume = volumeData.reduce((sum, d) => sum + Math.abs(d.net), 0);
+        document.getElementById('volumeInfo').innerHTML = 
+          `总交易量: ${totalVolume.toFixed(2)} SOL`;
+      }
+      
+      if (userData && userData.length > 0) {
+        const totalUsers = userData.reduce((sum, d) => sum + d.buyerCount + d.sellerCount, 0);
+        document.getElementById('userInfo').innerHTML = 
+          `总参与用户: ${totalUsers} 人`;
+      }
+    }
+
+    function destroyIfExists(id) {
+      if (charts[id]) {
+        charts[id].destroy();
+        delete charts[id];
+      }
+    }
+
+    // 主要功能函数
+    async function fetchTokenData() {
+      if (isLoading) return;
+      
+      const address = document.getElementById('addressInput').value.trim();
+      if (!address) {
+        showError('请输入代币合约地址');
+        return;
+      }
+
+      showLoading(true);
+      document.getElementById('error').style.display = 'none';
+      document.getElementById('recommendation').style.display = 'none';
+      document.getElementById('tokenInfo').classList.remove('show');
+
+      try {
+        const url = `${API_BASE_URL}/api/sol-token-info?address=${address}&range=${currentRange.value}&unit=${currentRange.unit}`;
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        // 显示结果
+        showTokenInfo(data);
+        showRecommendation(data.recommendation, data.recommendationType || 'neutral');
+        updateChartInfo(data);
+
+        // 绘制图表
+        drawChart('priceChart', '价格 (SOL)', data.priceChart, 'price', '#667eea');
+        drawVolumeChart('volumeChart', '资金流向', data.volumeChart);
+        drawUserChart('userChart', '交易用户', data.userChart);
+
+      } catch (err) {
+        console.error('请求出错:', err);
+        showError(`获取数据失败: ${err.message}`);
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    function changeTimeRange(value, unit) {
+      currentRange = { value, unit };
+      
+      // 更新按钮状态
+      document.querySelectorAll('.time-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      // 如果已有地址，自动刷新数据
+      const address = document.getElementById('addressInput').value.trim();
+      if (address) {
+        fetchTokenData();
+      }
+    }
+
+    // 图表绘制函数
+    function drawChart(canvasId, label, dataset, field, color) {
+      destroyIfExists(canvasId);
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      
+      charts[canvasId] = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: dataset.map(d => d.time),
+          datasets: [{
+            label,
+            data: dataset.map(d => d[field]),
+            fill: true,
+            borderColor: color,
+            backgroundColor: color + '20',
+            tension: 0.4,
+            pointRadius: 4,
+            pointHoverRadius: 8,
+            pointBackgroundColor: color,
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            intersect: false,
+            mode: 'index'
+          },
+          scales: {
+            y: {
+              beginAtZero: false,
+              grid: {
+                color: '#f1f5f9'
+              },
+              ticks: {
+                callback: function(value) {
+                  return value.toFixed(6);
+                }
+              }
+            },
+            x: {
+              grid: {
+                color: '#f1f5f9'
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                usePointStyle: true,
+                padding: 20
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0,0,0,0.8)',
+              titleColor: '#fff',
+              bodyColor: '#fff',
+              borderColor: color,
+              borderWidth: 1,
+              cornerRadius: 8,
+              displayColors: false
+            }
+          }
+        }
+      });
+    }
+
+    function drawVolumeChart(canvasId, label, dataset) {
+      destroyIfExists(canvasId);
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      
+      charts[canvasId] = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: dataset.map(d => d.time),
+          datasets: [
+            {
+              label: '买入金额 (SOL)',
+              data: dataset.map(d => d.buy),
+              borderColor: '#10b981',
+              backgroundColor: '#10b98120',
+              tension: 0.4,
+              fill: false,
+              pointRadius: 3,
+              pointBackgroundColor: '#10b981'
+            },
+            {
+              label: '卖出金额 (SOL)',
+              data: dataset.map(d => d.sell),
+              borderColor: '#ef4444',
+              backgroundColor: '#ef444420',
+              tension: 0.4,
+              fill: false,
+              pointRadius: 3,
+              pointBackgroundColor: '#ef4444'
+            },
+            {
+              label: '净流入 (SOL)',
+              data: dataset.map(d => d.net),
+              borderColor: '#f59e0b',
+              backgroundColor: '#f59e0b20',
+              tension: 0.4,
+              fill: false,
+              pointRadius: 3,
+              pointBackgroundColor: '#f59e0b'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            intersect: false,
+            mode: 'index'
+          },
+          scales: {
+            y: {
+              grid: {
+                color: '#f1f5f9'
+              },
+              ticks: {
+                callback: function(value) {
+                  return value.toFixed(2);
+                }
+              }
+            },
+            x: {
+              grid: {
+                color: '#f1f5f9'
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                usePointStyle: true,
+                padding: 20
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0,0,0,0.8)',
+              titleColor: '#fff',
+              bodyColor: '#fff',
+              cornerRadius: 8,
+              displayColors: true
+            }
+          }
+        }
+      });
+    }
+
+    function drawUserChart(canvasId, label, dataset) {
+      destroyIfExists(canvasId);
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      
+      charts[canvasId] = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: dataset.map(d => d.time),
+          datasets: [
+            {
+              label: '买家数量',
+              data: dataset.map(d => d.buyerCount),
+              borderColor: '#10b981',
+              backgroundColor: '#10b98120',
+              fill: false,
+              tension: 0.4,
+              pointRadius: 3,
+              pointBackgroundColor: '#10b981'
+            },
+            {
+              label: '卖家数量',
+              data: dataset.map(d => d.sellerCount),
+              borderColor: '#ef4444',
+              backgroundColor: '#ef444420',
+              fill: false,
+              tension: 0.4,
+              pointRadius: 3,
+              pointBackgroundColor: '#ef4444'
+            },
+            {
+              label: '净用户差',
+              data: dataset.map(d => d.netUsers),
+              borderColor: '#8b5cf6',
+              backgroundColor: '#8b5cf620',
+              fill: false,
+              tension: 0.4,
+              pointRadius: 3,
+              pointBackgroundColor: '#8b5cf6'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            intersect: false,
+            mode: 'index'
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: '#f1f5f9'
+              }
+            },
+            x: {
+              grid: {
+                color: '#f1f5f9'
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                usePointStyle: true,
+                padding: 20
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0,0,0,0.8)',
+              titleColor: '#fff',
+              bodyColor: '#fff',
+              cornerRadius: 8,
+              displayColors: true
+            }
+          }
+        }
+      });
+    }
+
+    // 页面初始化
+    document.addEventListener('DOMContentLoaded', function() {
+      // 设置默认的SOL代币地址
+      document.getElementById('addressInput').value = 'So11111111111111111111111111111111111111112';
+      
+      // 添加回车键支持
+      document.getElementById('addressInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          fetchTokenData();
+        }
+      });
+      
+      // 生产环境自动分析默认代币
+      if (window.location.hostname !== 'localhost') {
+        setTimeout(() => {
+          fetchTokenData();
+        }, 1000);
+      }
+    });
+  </script>
+</body>
+</html>
