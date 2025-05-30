@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SOL Token Analyzer</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+    }
+    canvas {
+      margin-bottom: 2rem;
+    }
+    #recommendation {
+      font-weight: bold;
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <h1>SOL Token Analyzer</h1>
+  <input type="text" id="addressInput" placeholder="输入代币合约地址" size="50" />
+  <button onclick="fetchTokenData()">获取数据</button>
+  <div id="recommendation"></div>
+  <canvas id="priceChart" width="600" height="300"></canvas>
+  <canvas id="volumeChart" width="600" height="300"></canvas>
+  <canvas id="userChart" width="600" height="300"></canvas>
+
+  <script>
+    async function fetchTokenData() {
+      const address = document.getElementById('addressInput').value;
+      const res = await fetch(`http://localhost:3001/api/sol-token-info?address=${address}`);
+      const data = await res.json();
+
+      document.getElementById('recommendation').innerText = data.recommendation;
+
+      drawChart('priceChart', '价格走势', data.priceChart, 'price');
+      drawVolumeChart('volumeChart', '资金进出情况', data.volumeChart);
+      drawUserChart('userChart', '买卖人数情况', data.userChart);
+    }
+
+    function drawChart(canvasId, label, dataset, field) {
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: dataset.map(d => d.time),
+          datasets: [{
+            label,
+            data: dataset.map(d => d[field]),
+            fill: false,
+            borderColor: 'blue',
+            tension: 0.1
+          }]
+        }
+      });
+    }
+
+    function drawVolumeChart(canvasId, label, dataset) {
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: dataset.map(d => d.time),
+          datasets: [
+            {
+              label: '买入金额',
+              data: dataset.map(d => d.buy),
+              borderColor: 'green',
+              tension: 0.1,
+              fill: false
+            },
+            {
+              label: '卖出金额',
+              data: dataset.map(d => d.sell),
+              borderColor: 'red',
+              tension: 0.1,
+              fill: false
+            },
+            {
+              label: '净流入',
+              data: dataset.map(d => d.net),
+              borderColor: 'orange',
+              tension: 0.1,
+              fill: false
+            }
+          ]
+        }
+      });
+    }
+
+    function drawUserChart(canvasId, label, dataset) {
+      const ctx = document.getElementById(canvasId).getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: dataset.map(d => d.time),
+          datasets: [
+            {
+              label: '买家数',
+              data: dataset.map(d => d.buyerCount),
+              borderColor: 'green',
+              fill: false,
+              tension: 0.1
+            },
+            {
+              label: '卖家数',
+              data: dataset.map(d => d.sellerCount),
+              borderColor: 'red',
+              fill: false,
+              tension: 0.1
+            },
+            {
+              label: '净用户数',
+              data: dataset.map(d => d.netUsers),
+              borderColor: 'purple',
+              fill: false,
+              tension: 0.1
+            }
+          ]
+        }
+      });
+    }
+  </script>
+</body>
+</html>
