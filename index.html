@@ -33,7 +33,7 @@
   <script>
     async function fetchTokenData() {
       const address = document.getElementById('addressInput').value;
-      const res = await fetch(`http://localhost:3001/api/sol-token-info?address=${address}`);
+      const res = await fetch(`https://sol-token-api.onrender.com/api/sol-token-info?address=${address}`);
       const data = await res.json();
 
       document.getElementById('recommendation').innerText = data.recommendation;
