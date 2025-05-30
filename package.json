@@ -2,11 +2,13 @@
   "name": "sol-token-analyzer",
   "version": "1.0.0",
   "type": "module",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": ["solana", "token", "analyzer", "web3", "crypto", "trading"],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -15,5 +17,5 @@
     "express": "^5.1.0",
     "node-fetch": "^3.3.2"
   },
-  "description": ""
+  "description": "A web-based Solana token analyzer that provides price charts, volume analysis, and trading recommendations with multiple time intervals from 10 seconds to 5 hours"
 }
